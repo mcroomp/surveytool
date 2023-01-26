@@ -1,0 +1,230 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="google" content="notranslate" />
+<meta property="og:url" content="https://covid19impactsurvey.org/" />
+<meta property="og:title" content="Covid19 Impact Survey" />
+<meta property="og:image" content="https://covid19impactsurvey.org/covid19-icon.jpg" />
+<meta property="og:type" content="website" />
+<meta property="fb:app_id" content="859104554589013" />
+<meta property="fb:pages" content="106139034384767" />
+<meta property="twitter:card" content="summary">
+<meta property="twitter:title" content="Covid19 Impact Survey">
+<meta property="og:description" content="&iquest;Te gustar&iacute;a ayudar a luchar contra el COVID-19 a tr&aacute;ves de los datos? &Uacute;nete a las mas de 400.000 personas que han contestado esta encuesta. &iexcl;Gracias!" />
+<meta property="twitter:description" content="&iquest;Te gustar&iacute;a ayudar a luchar contra el COVID-19 a tr&aacute;ves de los datos? &Uacute;nete a las mas de 400.000 personas que han contestado esta encuesta. &iexcl;Gracias!" />
+<meta property="twitter:image" content="https://covid19impactsurvey.org/covid19-icon.jpg" />
+<meta property="twitter:site" content="@Covid19ImpactSurvey" />
+<title>Encuesta Covid-19 Impact Survey</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<style>
+
+    .inheritalign {
+        text-align: inherit
+    }
+
+    body {
+        text-align: inherit
+    }
+
+</style>
+
+<script>
+
+var uniqueid;
+
+function onload() {
+
+	selectLanguage();
+	updatepostalcodedescription();
+	updateVisibility();
+
+	document.forms[0]['survey_start_time'].value = new Date().toISOString();
+
+    uniqueid = generateUUID();
+}
+
+function extractHostname(url) {
+	if (url === undefined) {
+		return "web";
+	}
+
+	var hostname;
+	if (url.indexOf("//") > -1) { hostname = url.split('/')[2]; }
+	else { hostname = url.split('/')[0]; }
+	hostname = hostname.split(':')[0];
+	hostname = hostname.split('?')[0];
+
+	if (!hostname) { hostname = "web"; }
+
+	return hostname;
+}
+
+function generateUUID() { // Public Domain/MIT
+	var d = new Date().getTime();//Timestamp
+	var d2 = (performance && performance.now && (performance.now() * 1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+		var r = Math.random() * 16;//random number between 0 and 16
+		if (d > 0) {//Use timestamp until depleted
+			r = (d + r) % 16 | 0;
+			d = Math.floor(d / 16);
+		} else {//Use microseconds since page-load if supported
+			r = (d2 + r) % 16 | 0;
+			d2 = Math.floor(d2 / 16);
+		}
+		return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+	});
+}
+
+function submitform() {
+
+	submitbutton.disabled = true;
+    document.forms[0].action = "https://api.covid19impactsurvey.org/submit/formsubmit2";        // this should be your submit URL
+	document.forms[0]['survey_end_time'].value = new Date().toISOString();
+	document.forms[0]['surveysource'].value = extractHostname(document.referrer);
+	document.forms[0]['survey_channel'].value = getUrlParameter("channel");
+	document.forms[0]['language'].value = currentlanguage;
+	return true;
+}
+
+function getFieldValue(name)
+{
+	var radios = document.getElementsByName(name);
+	var returnvalue = "";
+
+	for (var i = 0, length = radios.length; i < length; i++) {
+		if (radios[i].checked) {
+			returnvalue = returnvalue + radios[i].value;
+		}
+	}
+	return returnvalue;
+}
+
+function selected(fieldvalue, value) {
+	return fieldvalue.indexOf(value) != -1;
+}
+
+var maxpercent = 0;
+
+function cross(a1, a2, c ) {
+	return a1 < c && a2 >= c;
+}
+
+function activityhappened(percentcomplete) {
+
+	// update progress bar as users complete the survey
+	if (percentcomplete > maxpercent) {
+
+		label = null;
+		if (maxpercent === 0) {
+		} else if (cross(maxpercent, percentcomplete, 25)) {
+			label = "25";
+		} else if (cross(maxpercent, percentcomplete, 50)) {
+			label = "50";
+		} else if (cross(maxpercent, percentcomplete, 75)) {
+			label = "75";
+		}
+
+		maxpercent = percentcomplete;
+
+		refreshprogress();
+    }
+}
+
+function refreshprogress() {
+	var value = maxpercent;
+
+	if (getFieldValue('consent') !== 'yes') {
+		value = 0;
+	}
+
+	var e = document.getElementById('progress');
+	e.setAttribute('aria-valuenow', value);
+	e.setAttribute('style', "width: " + value + '%');
+
+	var message = "";
+	if (value > 0) {
+		if (value < 50) {
+			message = translations[currentlanguage]["progress_1"];
+		} else if (value < 80) {
+			message = translations[currentlanguage]["progress_2"];
+		} else {
+			if (!document.forms[0]['survey_mid_time'].value)
+			{
+				document.forms[0]['survey_mid_time'].value = new Date().toISOString();
+            }
+			message = translations[currentlanguage]["progress_3"];
+		}
+
+		message = value + '% ' + message
+	}
+
+	e.innerText = message;
+}
+
+function getUrlParameter(name) {
+	name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+	var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+	var results = regex.exec(location.search);
+	return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
+
+function updateLanguage(newlanguage)
+{
+	currentlanguage = newlanguage;
+
+	var language = translations[currentlanguage];
+	for (xlate in language)
+	{
+		var es = document.getElementsByName(xlate);
+		for (var i = 0; i < es.length; i++)
+		{
+			var e = es[i];
+
+			e.innerHTML = "";
+			e.lang = currentlanguage;
+			e.innerHTML = language[xlate];
+        }
+	}
+
+	if (currentlanguage == "ar" || currentlanguage == "fa" || currentlanguage == "he") {
+		document.dir = "rtl";
+	}
+	else {
+		document.dir = "ltr";
+	}
+
+	refreshprogress();
+}
+
+function selectLanguage() {
+	var language = navigator.languages
+		? navigator.languages[0]
+		: (navigator.language || navigator.userLanguage);
+
+	var found = null;
+	language = language.toLowerCase();
+
+	var languagefound = currentlanguage;
+
+	for (var i = 0, length = languages.length; i < length; i++) {
+		var l = languages[i];	
+
+		if (language.indexOf(l) == 0) {
+			languagefound = l;
+			break;
+		}
+	}
+
+	updateLanguage(languagefound);
+	document.getElementById('languageselector').value = languagefound;
+}
+
+</script>
